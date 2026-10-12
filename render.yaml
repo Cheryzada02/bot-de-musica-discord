@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: discord-music-bot
+    env: node
+    plan: free
+    buildCommand: "npm ci"
+    startCommand: "node src/index.js"
+    autoDeploy: true
+    envVars:
+      - key: DISCORD_TOKEN
+        sync: false
+      - key: CLIENT_ID
+        sync: false
+      - key: GUILD_ID
+        sync: false
+      - key: DISCORD_TEXT_CHANNEL_ID
+        sync: false
+      - key: SPOTIFY_CLIENT_ID
+        sync: false
+      - key: SPOTIFY_CLIENT_SECRET
+        sync: false

@@ -1,0 +1,31 @@
+{
+  "name": "discord-music-bot",
+  "version": "1.0.0",
+  "description": "Bot de música para Discord (YouTube/Spotify) con discord.js v14 y discord-player v7, listo para Render con autoping.",
+  "type": "module",
+  "main": "src/index.js",
+  "engines": {
+    "node": ">=18.17.0"
+  },
+  "scripts": {
+    "dev": "node src/index.js",
+    "deploy:cmds:guild": "node src/deploy-commands.js --scope guild",
+    "deploy:cmds:global": "node src/deploy-commands.js --scope global"
+  },
+  "dependencies": {
+    "@discord-player/extractor": "7.1.0",
+    "@discord-player/ffmpeg": "7.1.0",
+    "@discordjs/rest": "^2.6.0",
+    "@discordjs/voice": "0.18.0",
+    "bgutils-js": "^4.0.3",
+    "discord-player": "7.1.0",
+    "discord-player-youtubei": "^3.1.0",
+    "discord.js": "^14.23.2",
+    "dotenv": "16.4.5",
+    "express": "^4.21.2",
+    "ffmpeg-static": "5.2.0",
+    "fluent-ffmpeg": "^2.1.3",
+    "googlevideo": "^4.1.1",
+    "simple-ytdl-core": "^1.1.1"
+  }
+}
