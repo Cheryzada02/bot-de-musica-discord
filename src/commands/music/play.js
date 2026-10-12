@@ -1,11 +1,10 @@
-import { SlashCommandBuilder, ChannelType } from "discord.js";
+import { SlashCommandBuilder, ChannelType, PermissionFlagsBits } from "discord.js";
 import { useMainPlayer, QueryType } from "discord-player";
 
 export const data = new SlashCommandBuilder()
   .setName("play")
   .setDescription("Reproduce una canción o playlist por nombre o URL (YouTube/Spotify/Apple/SC).")
   .addStringOption(o => o.setName("cancion").setDescription("Nombre o URL de la canción").setRequired(true))
-  .addChannelOption(o => o.setName("canal").setDescription("Canal de voz").addChannelTypes(ChannelType.GuildVoice))
   .setDMPermission(false);
 
 function findStringOption(options, preferredNames) {
@@ -36,6 +35,28 @@ function findStringOption(options, preferredNames) {
 
 export async function execute(interaction) {
   const player = useMainPlayer();
+  const voice = interaction.guild?.voiceStates.cache.get(interaction.user.id)?.channel;
+
+  if (!voice || voice.type !== ChannelType.GuildVoice) {
+    return interaction.reply({
+      content: "🔊 Primero debes conectarte a un canal de voz para poner música.",
+      ephemeral: true,
+    });
+  }
+
+  const botMember = interaction.guild.members.me;
+  const permissions = botMember && voice.permissionsFor(botMember);
+  if (!permissions?.has([
+    PermissionFlagsBits.ViewChannel,
+    PermissionFlagsBits.Connect,
+    PermissionFlagsBits.Speak,
+  ])) {
+    return interaction.reply({
+      content: "❌ No tengo permiso para ver, conectarme o hablar en ese canal de voz.",
+      ephemeral: true,
+    });
+  }
+
   const query = findStringOption(interaction.options.data, ["cancion", "query", "song", "music", "url", "search"]);
   if (!query) {
     console.warn("Comando /play sin texto de búsqueda. Opciones recibidas:", interaction.options.data.map((option) => ({
@@ -47,12 +68,6 @@ export async function execute(interaction) {
       content: "🎵 No recibí ninguna canción. Vuelve a ejecutar `/play` y completa el campo `cancion` con el nombre o la URL.",
       ephemeral: true,
     });
-  }
-
-  const voice = interaction.options.getChannel("canal") ?? interaction.member?.voice?.channel;
-
-  if (!voice || voice.type !== ChannelType.GuildVoice) {
-    return interaction.reply({ content: "🔊 Debes estar en un canal de voz o especificar uno.", ephemeral: true });
   }
 
   await interaction.deferReply();
