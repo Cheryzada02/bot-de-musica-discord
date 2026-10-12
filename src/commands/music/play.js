@@ -10,7 +10,14 @@ export const data = new SlashCommandBuilder()
 
 export async function execute(interaction) {
   const player = useMainPlayer();
-  const query = interaction.options.getString("query", true);
+  const query = interaction.options.getString("query")?.trim();
+  if (!query) {
+    return interaction.reply({
+      content: "🎵 No recibí ninguna canción. Vuelve a ejecutar `/play` y completa el campo `query` con el nombre o la URL.",
+      ephemeral: true,
+    });
+  }
+
   const voice = interaction.options.getChannel("canal") ?? interaction.member?.voice?.channel;
 
   if (!voice || voice.type !== ChannelType.GuildVoice) {
