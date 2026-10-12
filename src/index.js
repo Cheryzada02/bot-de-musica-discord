@@ -45,8 +45,20 @@ if (process.env.SPOTIFY_CLIENT_ID && process.env.SPOTIFY_CLIENT_SECRET) {
   console.warn("SPOTIFY_CLIENT_ID/SECRET no definidos; la búsqueda por Spotify queda deshabilitada.");
 }
 
-await player.extractors.register(YoutubeExtractor, {});
+await player.extractors.register(YoutubeExtractor, {
+  downloads: {
+    trialOrder: ["adaptive", "sabr", "yt-dlp"],
+  },
+});
 console.log("✅ Extractores de música cargados.");
+
+player.on("debug", (message) => {
+  if (message instanceof Error) {
+    console.error("❌ Error interno de extracción de YouTube:", message);
+  } else if (typeof message === "string" && message.includes("[YouTube]: Stream extraction")) {
+    console.warn(message);
+  }
+});
 
 player.events.on("error", (error) => {
   console.error("❌ Error del reproductor:", error);
