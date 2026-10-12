@@ -47,16 +47,16 @@ if (process.env.SPOTIFY_CLIENT_ID && process.env.SPOTIFY_CLIENT_SECRET) {
 
 await player.extractors.register(YoutubeExtractor, {
   downloads: {
-    trialOrder: ["adaptive", "sabr", "yt-dlp"],
+    trialOrder: ["yt-dlp", "adaptive", "sabr"],
   },
 });
 console.log("✅ Extractores de música cargados.");
 
 player.on("debug", (message) => {
   if (message instanceof Error) {
-    console.error("❌ Error interno de extracción de YouTube:", message);
-  } else if (typeof message === "string" && message.includes("[YouTube]: Stream extraction")) {
-    console.warn(message);
+    console.error("❌ Error interno de extracción de YouTube:", message.name, message.message);
+  } else if (typeof message === "string" && message.startsWith("[YouTube]:")) {
+    console.info(message);
   }
 });
 
@@ -72,7 +72,8 @@ player.events.on("playerError", (queue, error, track) => {
   console.error(`❌ No se pudo transmitir "${track.title}":`, error);
   const channel = queue.metadata?.channel;
   if (channel?.isTextBased()) {
-    channel.send(`❌ No se pudo reproducir **${track.title}** desde YouTube. Intenta con otra canción o URL.`)
+    const reason = error.message.split("\n", 1)[0];
+    channel.send(`❌ No se pudo reproducir **${track.title}** desde YouTube (${reason}). Intenta con otra canción o URL.`)
       .catch((sendError) => console.error("No se pudo avisar del error de reproducción:", sendError));
   }
 });
