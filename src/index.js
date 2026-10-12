@@ -48,6 +48,23 @@ if (process.env.SPOTIFY_CLIENT_ID && process.env.SPOTIFY_CLIENT_SECRET) {
 await player.extractors.register(YoutubeExtractor, {});
 console.log("✅ Extractores de música cargados.");
 
+player.events.on("error", (error) => {
+  console.error("❌ Error del reproductor:", error);
+});
+
+player.events.on("playerStart", (queue, track) => {
+  console.log(`▶️ Reproduciendo en YouTube: ${track.title} (servidor ${queue.guild.id}).`);
+});
+
+player.events.on("playerError", (queue, error, track) => {
+  console.error(`❌ No se pudo transmitir "${track.title}":`, error);
+  const channel = queue.metadata?.channel;
+  if (channel?.isTextBased()) {
+    channel.send(`❌ No se pudo reproducir **${track.title}** desde YouTube. Intenta con otra canción o URL.`)
+      .catch((sendError) => console.error("No se pudo avisar del error de reproducción:", sendError));
+  }
+});
+
 function findCommandFiles(directory) {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
     const filePath = join(directory, entry.name);

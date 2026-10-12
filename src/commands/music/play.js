@@ -75,13 +75,16 @@ export async function execute(interaction) {
   const res = await player.play(voice, query, {
     nodeOptions: {
       metadata: { channel: interaction.channel, requestedBy: interaction.user },
-      volume: 15
+      volume: 80,
+      selfDeaf: false,
+      connectionTimeout: 30_000,
+      bufferingTimeout: 15_000,
     },
     requestedBy: interaction.user,
-    searchEngine: QueryType.AUTO
+    searchEngine: /^https?:\/\//i.test(query) ? QueryType.AUTO : QueryType.YOUTUBE_SEARCH,
   });
 
   const track = res.track ?? res.tracks?.[0];
-  if (!track) return interaction.editReply("❌ No se encontraron resultados.");
-  await interaction.editReply(`▶️ **${track.title}** — ${track.author ?? "Desconocido"}\n${track.url ?? query}`);
+  if (!track) return interaction.editReply("❌ No se encontró esa canción en YouTube.");
+  await interaction.editReply(`🎶 **${track.title}** — ${track.author ?? "Desconocido"}\nAñadida a la cola de YouTube.`);
 }
